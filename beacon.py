@@ -1211,8 +1211,8 @@ def incidents():
         "SELECT lat, lng, category, note, created_at FROM incidents ORDER BY created_at DESC LIMIT 500"
     ).fetchall()
     return jsonify([dict(r) for r in rows])
-
-
+  
+init_db()
 if __name__ == "__main__":
     init_db()
     # host="127.0.0.1" is fine for local VS Code development; switch to
