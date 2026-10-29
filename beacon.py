@@ -1214,8 +1214,6 @@ def incidents():
   
 init_db()
 if __name__ == "__main__":
-    init_db()
     # host="127.0.0.1" is fine for local VS Code development; switch to
     # "0.0.0.0" only if you need to open it from another device on your Wi‑Fi.
     app.run(debug=True, host="127.0.0.1", port=5000)
-    
