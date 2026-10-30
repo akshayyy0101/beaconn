@@ -897,13 +897,15 @@ def send_email_alert(to_email, subject, body):
 
 def send_sms_alert(to_phone, body):
     if not (TWILIO_SID and TWILIO_AUTH_TOKEN and TWILIO_FROM_NUMBER):
+        print("SMS SKIPPED: a Twilio variable is empty", flush=True)
         return False
     try:
         from twilio.rest import Client
         client = Client(TWILIO_SID, TWILIO_AUTH_TOKEN)
         client.messages.create(body=body, from_=TWILIO_FROM_NUMBER, to=to_phone)
         return True
-    except Exception:
+    except Exception as e:
+        print("SMS ERROR:", repr(e), flush=True)
         return False
 
 
