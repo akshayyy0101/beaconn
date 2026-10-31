@@ -879,19 +879,35 @@ def login_required(view):
 # ---------------------------------------------------------------------------
 
 def send_email_alert(to_email, subject, body):
-    if not (SMTP_SERVER and SMTP_USERNAME and SMTP_PASSWORD):
+    import json
+    import urllib.request
+    api_key = os.environ.get("BEACON_BREVO_API_KEY", "")
+    sender = os.environ.get("BEACON_BREVO_SENDER", "")
+    if not (api_key and sender):
+        print("EMAIL SKIPPED: Brevo variable is empty", flush=True)
         return False
     try:
-        msg = MIMEText(body)
-        msg["Subject"] = subject
-        msg["From"] = SMTP_USERNAME
-        msg["To"] = to_email
-        with smtplib.SMTP(SMTP_SERVER, SMTP_PORT) as server:
-            server.starttls()
-            server.login(SMTP_USERNAME, SMTP_PASSWORD)
-            server.sendmail(SMTP_USERNAME, [to_email], msg.as_string())
+        payload = json.dumps({
+            "sender": {"name": "Beacon SOS", "email": sender},
+            "to": [{"email": to_email}],
+            "subject": subject,
+            "textContent": body,
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            "https://api.brevo.com/v3/smtp/email",
+            data=payload,
+            headers={
+                "api-key": api_key,
+                "Content-Type": "application/json",
+                "accept": "application/json",
+            },
+            method="POST",
+        )
+        urllib.request.urlopen(req, timeout=10)
         return True
-    except Exception:
+    except Exception as e:
+        detail = e.read().decode() if hasattr(e, "read") else ""
+        print("EMAIL ERROR:", repr(e), detail, flush=True)
         return False
 
 
